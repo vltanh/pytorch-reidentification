@@ -1,7 +1,7 @@
-id: SiameseDebug
+id: TripletDebug
 pretrained: null
 model:
-    name: SiameseNet
+    name: TripletNet
     args:
         extractor:
             name: EfficientNetExtractor
@@ -12,7 +12,7 @@ optimizer:
     args:
         lr: 0.001
 loss:
-    name: ContrastiveLoss
+    name: TripletLoss
     args:
         margin: 1.0
 metric: []
@@ -24,7 +24,7 @@ scheduler:
         last_epoch: -1
 dataset:
     train:
-        name: SiameseDataset
+        name: TripletDataset
         args:
             dataset:
                 name: AIC2020Track2
@@ -37,7 +37,7 @@ dataset:
             pin_memory: True
             shuffle: True
     val:
-        name: SiameseDataset
+        name: TripletDataset
         args:
             dataset:
                 name: AIC2020Track2
