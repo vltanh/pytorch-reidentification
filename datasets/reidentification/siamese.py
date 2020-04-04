@@ -1,11 +1,11 @@
-from torch.utils import data
+from torch.utils.data import Dataset
 import numpy as np
 from PIL import Image
 
 from utils import getter
 
 
-class SiameseDataset(data.Dataset):
+class SiameseDataset(Dataset):
     def __init__(self, dataset):
         self.dataset = getter.get_instance(dataset)
 
