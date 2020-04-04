@@ -114,7 +114,7 @@ def extract_embeddings(dataloader, model, device):
                              model.embedding_net.feature_dim)
     labels = np.zeros(len(dataloader.dataset))
     k = 0
-    for images, target in dataloader:
+    for images, target in tqdm(dataloader):
         images = images.to(device)
         embeddings[k:k+len(images)
                    ] = model.get_embedding(images).detach()
@@ -139,24 +139,33 @@ def evaluate(config):
 
     # 1: Define network
     net = get_instance(config['model']).to(device)
-    # net.load_state_dict(pretrained['model_state_dict'])
+    net.load_state_dict(pretrained['model_state_dict'])
 
     # 2: Load datasets
+    print('Load queries...')
     dataset = AIC2020Track2(root='data/AIC20_ReID/image_train',
                             path='data/list/reid_query_easy.csv',
                             train=True)
     dataloader = DataLoader(dataset, batch_size=64)
+
+    print('Extract queries...')
     q_embs, q_labels = extract_embeddings(dataloader, net, device)
 
+    print('Load gallery...')
     dataset = AIC2020Track2(root='data/AIC20_ReID/image_train',
                             path='data/list/reid_gallery_easy.csv',
                             train=True)
     dataloader = DataLoader(dataset, batch_size=64)
+
+    print('Extract gallery...')
     g_embs, g_labels = extract_embeddings(dataloader, net, device)
 
+    print('Evaluate...')
+    cmc_rank = 1
+    top_k = 100
     mAP, cmc = reid_evaluate(q_embs, g_embs, q_labels, g_labels,
-                             cmc_rank=1, top_k=100)
-    print(mAP, cmc)
+                             cmc_rank, top_k)
+    print(f'mAP@{top_k}={mAP}, cmc@{cmc_rank}={cmc}')
 
 
 if __name__ == "__main__":
