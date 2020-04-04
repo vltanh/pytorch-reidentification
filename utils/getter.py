@@ -1,5 +1,5 @@
 from torch.optim import SGD, Adam, RMSprop
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 
 from losses import *
 from datasets import *
