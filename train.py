@@ -30,7 +30,7 @@ def train(config):
     pretrained = None
     if (pretrained_path != None):
         pretrained = torch.load(pretrained_path, map_location=dev_id)
-        for item in ["model", "train"]:
+        for item in ["model"]:
             config[item] = pretrained["config"][item]
 
     # 1: Load datasets
