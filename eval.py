@@ -110,8 +110,7 @@ def plot_embeddings(embeddings, targets, xlim=None, ylim=None):
 @torch.no_grad()
 def extract_embeddings(dataloader, model, device):
     model.eval()
-    embeddings = torch.zeros(len(dataloader.dataset),
-                             model.embedding_net.feature_dim)
+    embeddings = torch.zeros(len(dataloader.dataset), model.feature_dim)
     labels = np.zeros(len(dataloader.dataset))
     k = 0
     for images, target in tqdm(dataloader):

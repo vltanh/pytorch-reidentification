@@ -78,8 +78,8 @@ class Trainer():
                 print(
                     f'{k} is not improved from {self.best_metric[k]:.6f}.')
 
-        # print('Saving current model...')
-        # torch.save(data, os.path.join(self.save_dir, 'current.pth'))
+        print('Saving current model...')
+        torch.save(data, os.path.join(self.save_dir, 'current.pth'))
 
     def train_epoch(self, epoch, dataloader):
         # 0: Record loss during training process

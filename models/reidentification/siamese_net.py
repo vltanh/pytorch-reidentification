@@ -7,6 +7,7 @@ class SiameseNet(nn.Module):
     def __init__(self, extractor):
         super().__init__()
         self.embedding_net = getter.get_instance(extractor)
+        self.feature_dim = self.embedding_net.feature_dim
 
     def forward(self, x):
         x1, x2 = x
