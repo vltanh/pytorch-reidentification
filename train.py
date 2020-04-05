@@ -36,12 +36,12 @@ def train(config):
     # 1: Load datasets
     set_seed()
     train_dataset = get_instance(config['dataset']['train'])
-    train_dataloader = torch.utils.data.DataLoader(train_dataset,
-                                                   **config['dataset']['train']['loader'])
+    train_dataloader = get_instance(config['dataset']['train']['loader'],
+                                    dataset=train_dataset)
 
     val_dataset = get_instance(config['dataset']['val'])
-    val_dataloader = torch.utils.data.DataLoader(val_dataset,
-                                                 **config['dataset']['val']['loader'])
+    val_dataloader = get_instance(config['dataset']['val']['loader'],
+                                  dataset=val_dataset)
 
     # 2: Define network
     set_seed()
