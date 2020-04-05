@@ -1,4 +1,4 @@
-id: TripletDebug
+id: Triplet
 pretrained: null
 model:
     name: TripletNet
@@ -6,7 +6,7 @@ model:
         extractor:
             name: EfficientNetExtractor
             args:
-                version: b0
+                version: 0
 optimizer:
     name: Adam
     args:
@@ -33,9 +33,11 @@ dataset:
                     path: data/list/reid_train_easy.csv
                     train: True
         loader:
-            batch_size: 8
-            pin_memory: True
-            shuffle: True
+            name: DataLoader
+            args:
+                batch_size: 8
+                pin_memory: True
+                shuffle: True
     val:
         name: TripletDataset
         args:
@@ -46,8 +48,10 @@ dataset:
                     path: data/list/reid_gallery_easy.csv
                     train: False
         loader:
-            batch_size: 8
-            pin_memory: True
+            name: DataLoader
+            args:
+                batch_size: 8
+                pin_memory: True
 trainer:
     nepochs: 10
     val_step: 1

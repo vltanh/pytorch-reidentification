@@ -1,4 +1,4 @@
-id: OnlinePair
+id: OnlineTriplet
 pretrained: null
 model:
     name: EfficientNetExtractor
@@ -8,12 +8,15 @@ optimizer:
     name: Adam
     args:
         lr: 0.001
+        weight_decay: 0.0001
 loss:
-    name: OnlineContrastiveLoss
+    name: OnlineTripletLoss
     args:
         margin: 1.0
-        pair_selector:
-            name: HardNegativePairSelector
+        selector:
+            name: RandomNegativeTripletSelector
+            args:
+                margin: 1.0
 metric: []
 scheduler:
     name: StepLR
@@ -31,8 +34,8 @@ dataset:
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 4
-                nsamples: 2
+                nclasses: 5
+                nsamples: 5
                 pin_memory: True
     val:
         name: AIC2020Track2
@@ -43,10 +46,10 @@ dataset:
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 4
-                nsamples: 2
+                nclasses: 5
+                nsamples: 5
                 pin_memory: True
 trainer:
     nepochs: 10
     val_step: 1
-    log_step: 1
+    log_step: 50
