@@ -26,7 +26,7 @@ class TripletDataset(Dataset):
 
         else:
             self.test_labels = self.dataset.test_labels
-            self.test_data = self.dataset.test_data
+            self.test_data = self.dataset
             # generate fixed triplets for testing
             self.labels_set = set(self.test_labels.numpy())
             self.label_to_indices = {label: np.where(self.test_labels.numpy() == label)[0]
