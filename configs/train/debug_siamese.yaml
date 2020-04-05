@@ -4,9 +4,9 @@ model:
     name: SiameseNet
     args:
         extractor:
-            name: EfficientNetExtractor
+            name: EfficienNetExtractor
             args:
-                version: b0
+                version: 0
 optimizer:
     name: Adam
     args:
