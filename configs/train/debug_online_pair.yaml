@@ -1,0 +1,52 @@
+id: OnlinePairDebug
+pretrained: null
+model:
+    name: EfficientNetExtractor
+    args:
+        version: 0
+optimizer:
+    name: Adam
+    args:
+        lr: 0.001
+loss:
+    name: OnlineContrastiveLoss
+    args:
+        margin: 1.0
+        pair_selector:
+            name: HardNegativePairSelector
+metric: []
+scheduler:
+    name: StepLR
+    args:
+        step_size: 8
+        gamma: 0.1
+        last_epoch: -1
+dataset:
+    train:
+        name: AIC2020Track2
+        args:
+            root: data/AIC20_ReID/image_train
+            path: data/list/reid_train_easy.csv
+            train: True
+        loader:
+            name: BalancedBatchDataLoader
+            args:
+                nclasses: 4
+                nsamples: 2
+                pin_memory: True
+    val:
+        name: AIC2020Track2
+        args:
+            root: data/AIC20_ReID/image_train
+            path: data/list/reid_gallery_easy.csv
+            train: False
+        loader:
+            name: BalancedBatchDataLoader
+            args:
+                nclasses: 4
+                nsamples: 2
+                pin_memory: True
+trainer:
+    nepochs: 10
+    val_step: 1
+    log_step: 1
