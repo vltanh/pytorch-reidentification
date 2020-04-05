@@ -78,8 +78,8 @@ class Trainer():
                 print(
                     f'{k} is not improved from {self.best_metric[k]:.6f}.')
 
-        print('Saving current model...')
-        torch.save(data, os.path.join(self.save_dir, 'current.pth'))
+        # print('Saving current model...')
+        # torch.save(data, os.path.join(self.save_dir, f'current_{epoch}.pth'))
 
     def train_epoch(self, epoch, dataloader):
         # 0: Record loss during training process
@@ -117,15 +117,15 @@ class Trainer():
                 # 8: Update metric
                 outs = detach(outs)
                 lbl = detach(lbl)
-                for m in self.metric.values():
-                    value = m.calculate(outs, lbl)
-                    m.update(value)
+                # for m in self.metric.values():
+                #     value = m.calculate(outs, lbl)
+                #     m.update(value)
 
         print('+ Training result')
         avg_loss = total_loss.value()[0]
         print('Loss:', avg_loss)
-        for m in self.metric.values():
-            m.summary()
+        # for m in self.metric.values():
+        #     m.summary()
 
     @torch.no_grad()
     def val_epoch(self, epoch, dataloader):

@@ -65,7 +65,8 @@ def train(config):
                              optimizer=optimizer)
 
     # 6: Define metrics
-    metric = {mcfg['name']: get_instance(mcfg)
+    metric = {mcfg['name']: get_instance(mcfg,
+                                         net=model, device=device)
               for mcfg in config['metric']}
 
     # 6: Create trainer

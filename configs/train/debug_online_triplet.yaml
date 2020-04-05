@@ -1,4 +1,4 @@
-id: OnlineTriplet
+id: OnlineTriplet_SemiHardest
 pretrained: null
 model:
     name: EfficientNetExtractor
@@ -14,10 +14,11 @@ loss:
     args:
         margin: 1.0
         selector:
-            name: RandomNegativeTripletSelector
+            name: SemihardNegativeTripletSelector
             args:
                 margin: 1.0
-metric: []
+metric:
+    - name: MeanAP
 scheduler:
     name: StepLR
     args:
@@ -34,8 +35,8 @@ dataset:
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 5
-                nsamples: 5
+                nclasses: 4
+                nsamples: 4
                 pin_memory: True
     val:
         name: AIC2020Track2
@@ -46,8 +47,8 @@ dataset:
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 5
-                nsamples: 5
+                nclasses: 4
+                nsamples: 4
                 pin_memory: True
 trainer:
     nepochs: 10
