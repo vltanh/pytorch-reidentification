@@ -21,6 +21,7 @@ def pdist_torch(emb1, emb2):
     return dist_mtx
 
 
+@torch.no_grad()
 def reid_evaluate(emb_query, emb_gallery, lb_ids_query, lb_ids_gallery,
                   cmc_rank=1, top_k=100):
     # Calculate distance matrix between query images and gallery images
