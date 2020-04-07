@@ -14,7 +14,7 @@ loss:
     args:
         margin: 1.0
         selector:
-            name: SemihardNegativeTripletSelector
+            name: HardestNegativeTripletSelector
             args:
                 margin: 1.0
 metric:
@@ -27,30 +27,32 @@ scheduler:
         last_epoch: -1
 dataset:
     train:
-        name: AIC2020Track2
+        name: AIC2020Track2Hard
         args:
             root: data/AIC20_ReID/image_train
-            path: data/list/reid_train_easy.csv
+            csv_path: data/list/reid_train_hard.csv
+            json_path: data/list/train_image_metadata.json
             train: True
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 4
-                nsamples: 4
+                nclasses: 8
+                nsamples: 2
                 pin_memory: True
     val:
-        name: AIC2020Track2
+        name: AIC2020Track2Hard
         args:
             root: data/AIC20_ReID/image_train
-            path: data/list/reid_gallery_easy.csv
+            csv_path: data/list/reid_gallery_hard.csv
+            json_path: data/list/train_image_metadata.json
             train: False
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 4
-                nsamples: 4
+                nclasses: 8
+                nsamples: 2
                 pin_memory: True
 trainer:
     nepochs: 10
     val_step: 1
-    log_step: 50
+    log_step: 5
