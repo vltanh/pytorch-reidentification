@@ -14,10 +14,19 @@ class AIC2020Track2Hard(data.Dataset):
         self.train = train
         camera_ids, vehicle_ids = zip(*list(csv.reader(open(csv_path)))[1:])
         reference = json.load(open(json_path))
-        self.tracks = [[root + '/' + x
-                        for x in reference[vehicle_id][camera_id]]
-                       for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)]
-        labels = torch.tensor(list(map(int, vehicle_ids)))
+
+        if self.train:
+            self.tracks = [[root + '/' + x
+                            for x in reference[vehicle_id][camera_id]]
+                           for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)]
+            labels = torch.tensor(list(map(int, vehicle_ids)))
+        else:
+            self.tracks = [root + '/' + x
+                           for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)
+                           for x in reference[vehicle_id][camera_id]]
+            labels = torch.tensor([int(vehicle_id)
+                                   for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)
+                                   for _ in range(len(reference[vehicle_id][camera_id]))])
 
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
@@ -34,8 +43,10 @@ class AIC2020Track2Hard(data.Dataset):
             self.test_data = self.tracks
 
     def __getitem__(self, index):
-        image_path = random.choice(self.tracks[index])
-        print(image_path)
+        if self.train:
+            image_path = random.choice(self.tracks[index])
+        else:
+            image_path = self.tracks[index]
         im = Image.open(image_path)
         if self.train:
             label = self.train_labels[index]
