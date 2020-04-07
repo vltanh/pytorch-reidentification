@@ -61,10 +61,12 @@ def train(config):
         optimizer.load_state_dict(pretrained['optimizer_state_dict'])
 
     # 5: Define Scheduler
+    set_seed()
     scheduler = get_instance(config['scheduler'],
                              optimizer=optimizer)
 
     # 6: Define metrics
+    set_seed()
     metric = {mcfg['name']: get_instance(mcfg,
                                          net=model, device=device)
               for mcfg in config['metric']}
