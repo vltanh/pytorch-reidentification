@@ -26,16 +26,14 @@ class SiameseDataset(Dataset):
             self.label_to_indices = {label: np.where(self.test_labels.numpy() == label)[0]
                                      for label in self.labels_set}
 
-            random_state = np.random.RandomState(29)
-
             positive_pairs = [[i,
-                               random_state.choice(
+                               np.random.choice(
                                    self.label_to_indices[self.test_labels[i].item()]),
                                1]
                               for i in range(0, len(self.test_data), 2)]
 
             negative_pairs = [[i,
-                               random_state.choice(self.label_to_indices[
+                               np.random.choice(self.label_to_indices[
                                    np.random.choice(
                                        list(
                                            self.labels_set - set([self.test_labels[i].item()]))
@@ -65,6 +63,7 @@ class SiameseDataset(Dataset):
             img1, _ = self.test_data[self.test_pairs[index][0]]
             img2, _ = self.test_data[self.test_pairs[index][1]]
             target = self.test_pairs[index][2]
+
         return (img1, img2), target
 
     def __len__(self):

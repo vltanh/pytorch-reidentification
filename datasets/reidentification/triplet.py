@@ -32,12 +32,10 @@ class TripletDataset(Dataset):
             self.label_to_indices = {label: np.where(self.test_labels.numpy() == label)[0]
                                      for label in self.labels_set}
 
-            random_state = np.random.RandomState(29)
-
             triplets = [[i,
-                         random_state.choice(
+                         np.random.choice(
                              self.label_to_indices[self.test_labels[i].item()]),
-                         random_state.choice(self.label_to_indices[
+                         np.random.choice(self.label_to_indices[
                              np.random.choice(
                                  list(
                                      self.labels_set - set([self.test_labels[i].item()]))
