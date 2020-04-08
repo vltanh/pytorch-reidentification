@@ -131,3 +131,4 @@ data/
 runs/
 vis/
 *.pth
+*.zip

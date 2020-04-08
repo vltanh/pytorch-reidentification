@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 from tqdm import tqdm
 
-from datasets.aic2020track2 import AIC2020Track2Hard
+from datasets.aic2020track2 import AIC2020Track2
 
 
 def pdist_torch(emb1, emb2):
@@ -21,7 +21,6 @@ def pdist_torch(emb1, emb2):
     return dist_mtx
 
 
-@torch.no_grad()
 def reid_evaluate(emb_query, emb_gallery, lb_ids_query, lb_ids_gallery,
                   cmc_rank=1, top_k=100):
     # Calculate distance matrix between query images and gallery images
@@ -86,43 +85,39 @@ def extract_embeddings(dataloader, model, device):
 
 class MeanAP():
     def __init__(self, net, device,
-                 query_dir='data/AIC20_ReID/image_train',
-                 query_label_path='data/list/reid_query_hard.csv',
-                 gallery_dir='data/AIC20_ReID/image_train',
-                 gallery_label_path='data/list/reid_gallery_hard.csv',
+                 root='data/AIC20_ReID/image_train',
+                 path='data/list/reid_query_easy.csv',
                  batch_size=64, top_k=100):
+        self.root = root
+        self.path = path
         self.top_k = top_k
 
         self.net = net
         self.device = device
-
-        dataset = AIC2020Track2Hard(query_dir, query_label_path,
-                                    'data/list/train_image_metadata.json',
-                                    train=False)
-        self.query_dataloader = DataLoader(dataset, batch_size=batch_size)
-
-        dataset = AIC2020Track2Hard(gallery_dir, gallery_label_path,
-                                    'data/list/train_image_metadata.json',
-                                    train=False)
-        self.gallery_dataloader = DataLoader(dataset, batch_size=batch_size)
+        dataset = AIC2020Track2(root=self.root,
+                                path=self.path,
+                                train=True)
+        self.dataloader = DataLoader(dataset, batch_size=batch_size)
 
         self.reset()
 
     def calculate(self, output, target):
+        self.embeddings.append(output)
+        self.labels.append(target)
         return None
 
     def update(self, value):
         pass
 
     def reset(self):
+        self.embeddings = []
+        self.labels = []
         self.score = None
 
     def value(self):
-        g_embs, g_labels = extract_embeddings(self.gallery_dataloader,
-                                              self.net, self.device)
-        g_embs = g_embs.to(self.device)
-
-        q_embs, q_labels = extract_embeddings(self.query_dataloader,
+        g_embs = torch.cat(self.embeddings).to(self.device)
+        g_labels = torch.cat(self.labels).cpu().numpy()
+        q_embs, q_labels = extract_embeddings(self.dataloader,
                                               self.net, self.device)
         q_embs = q_embs.to(self.device)
 
