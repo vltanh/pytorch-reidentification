@@ -14,7 +14,7 @@ loss:
     args:
         margin: 1.0
         selector:
-            name: HardestNegativeTripletSelector
+            name: SemihardNegativeTripletSelector
             args:
                 margin: 1.0
 metric:
@@ -35,8 +35,8 @@ dataset:
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 8
-                nsamples: 2
+                nclasses: 4
+                nsamples: 4
                 pin_memory: True
     val:
         name: AIC2020Track2
@@ -47,8 +47,8 @@ dataset:
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 8
-                nsamples: 2
+                nclasses: 4
+                nsamples: 4
                 pin_memory: True
 trainer:
     nepochs: 10

@@ -14,8 +14,7 @@ loss:
         margin: 1.0
         pair_selector:
             name: HardNegativePairSelector
-metric:
-    - name: MeanAP
+metric: []
 scheduler:
     name: StepLR
     args:
