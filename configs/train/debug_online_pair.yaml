@@ -9,7 +9,7 @@ optimizer:
     args:
         lr: 0.001
 loss:
-    name: OnlineContrastiveLoss
+    name: OnlineClassificationLoss
     args:
         margin: 1.0
         pair_selector:
@@ -31,20 +31,21 @@ dataset:
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 8
-                nsamples: 2
+                nclasses: 4
+                nsamples: 4
                 pin_memory: True
     val:
-        name: AIC2020Track2
+        name: AIC2020Track2Hard
         args:
             root: data/AIC20_ReID/image_train
-            path: data/list/reid_gallery_easy.csv
+            csv_path: data/list/reid_gallery_hard.csv
+            json_path: data/list/train_image_metadata.json
             train: False
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 8
-                nsamples: 2
+                nclasses: 4
+                nsamples: 4
                 pin_memory: True
 trainer:
     nepochs: 10
