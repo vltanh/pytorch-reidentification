@@ -10,7 +10,7 @@ import random
 
 
 class AIC2020Track2Hard(data.Dataset):
-    def __init__(self, root, csv_path, json_path, train):
+    def __init__(self, root, csv_path, json_path, train, is_cls=False):
         self.train = train
         camera_ids, vehicle_ids = zip(*list(csv.reader(open(csv_path)))[1:])
         reference = json.load(open(json_path))
@@ -23,12 +23,13 @@ class AIC2020Track2Hard(data.Dataset):
             self.tracks = [[root + '/' + x
                             for x in reference[vehicle_id][camera_id]]
                            for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)]
-            labels = torch.tensor([labels_mapping[x] for x in labels])
+            labels = torch.tensor([labels_mapping[x] if is_cls else x
+                                   for x in labels])
         else:
             self.tracks = [root + '/' + x
                            for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)
                            for x in reference[vehicle_id][camera_id]]
-            labels = torch.tensor([labels_mapping[int(vehicle_id)]
+            labels = torch.tensor([labels_mapping[int(vehicle_id)] if is_cls else int(vehicle_id)
                                    for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)
                                    for _ in range(len(reference[vehicle_id][camera_id]))])
 
@@ -63,7 +64,7 @@ class AIC2020Track2Hard(data.Dataset):
 
 
 class AIC2020Track2(data.Dataset):
-    def __init__(self, root, path, train):
+    def __init__(self, root, path, train, is_cls=False):
         self.train = train
         image_name, labels = zip(*list(csv.reader(open(path)))[1:])
         self.image_name = [root + '/' + image_path
@@ -72,7 +73,8 @@ class AIC2020Track2(data.Dataset):
         labels = list(map(int, labels))
         labels_set = set(labels)
         labels_mapping = {k: i for i, k in enumerate(labels_set)}
-        labels = torch.tensor([labels_mapping[x] for x in labels])
+        labels = torch.tensor([labels_mapping[x] if is_cls else x
+                               for x in labels])
 
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
