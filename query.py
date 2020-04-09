@@ -105,7 +105,7 @@ def re_ranking(probFea, galFea, k1, k2, lambda_value, local_distmat=None, only_l
 
 def ranking(emb_query, names_query,
             emb_gallery, names_gallery,
-            top_k=100):
+            top_k=100, group_tracklet=False):
     # Calculate distance
     dist_mtx = pdist_torch(emb_query, emb_gallery).cpu().numpy()
     # dist_mtx = re_ranking(emb_query, emb_gallery, 60, 6, 0.25)
@@ -127,13 +127,16 @@ def ranking(emb_query, names_query,
         match_distances = dist_mtx[qidx, g_indices]
         match_ids = names_gallery[g_indices]
 
-        match_tracklet_ids = np.array([veh2tracklet_mapping[x]
-                                       for x in match_ids])
-        match_tracklet_distances = np.array([np.median(match_distances[np.where(match_tracklet_ids == tracklet_id)[0]])
-                                             for tracklet_id in tracklet_ids])
-        tracklet_indices = np.argsort(match_tracklet_distances)
+        if group_tracklet:
+            match_tracklet_ids = np.array([veh2tracklet_mapping[x]
+                                           for x in match_ids])
+            match_tracklet_distances = np.array([np.median(match_distances[np.where(match_tracklet_ids == tracklet_id)[0]])
+                                                 for tracklet_id in tracklet_ids])
+            tracklet_indices = np.argsort(match_tracklet_distances)
 
-        match_ids = sum([tracks[i] for i in tracklet_indices], [])[:top_k]
+            match_ids = sum([tracks[i] for i in tracklet_indices], [])
+
+        match_ids = match_ids[:top_k]
 
         ######################################################################
         qimid = os.path.basename(names_query[qidx]).replace('.jpg', '')
@@ -213,7 +216,8 @@ def generate_submission(gpus, weight_path, save_dir,
 
     print('Generate...')
     submission = ranking(q_embs, q_ids,
-                         g_embs, g_ids, top_k)
+                         g_embs, g_ids,
+                         top_k)
     create_submission_file(model_id, save_dir, submission)
 
 
