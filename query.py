@@ -116,9 +116,8 @@ def ranking(emb_query, names_query,
 
     reference_path = 'data/AIC20_ReID/test_track.txt'
     reference = open(reference_path).readlines()
-    tracks = np.array([x.strip().split()
-                       for x in reference if len(x.strip()) != 0])
-    tracklet_ids = np.arange(len(tracks))
+    tracks = [x.strip().split() for x in reference if len(x.strip()) != 0]
+    tracklet_ids = range(len(tracks))
     veh2tracklet_mapping = {v: i for i, x in enumerate(tracks) for v in x}
 
     submit = [[] for _ in range(n_q)]
@@ -134,7 +133,7 @@ def ranking(emb_query, names_query,
                                              for tracklet_id in tracklet_ids])
         tracklet_indices = np.argsort(match_tracklet_distances)
 
-        match_ids = sum([x for x in tracks[tracklet_indices]], [])[:top_k]
+        match_ids = sum([tracks[i] for i in tracklet_indices], [])[:top_k]
 
         ######################################################################
         qimid = os.path.basename(names_query[qidx]).replace('.jpg', '')
