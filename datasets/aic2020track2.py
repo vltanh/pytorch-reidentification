@@ -15,17 +15,21 @@ class AIC2020Track2Hard(data.Dataset):
         camera_ids, vehicle_ids = zip(*list(csv.reader(open(csv_path)))[1:])
         reference = json.load(open(json_path))
 
+        labels = list(map(int, vehicle_ids))
+        labels_set = set(labels)
+        labels_mapping = {k: i for i, k in enumerate(labels_set)}
+
         if self.train:
             self.tracks = [[root + '/' + x
                             for x in reference[vehicle_id][camera_id]]
                            for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)]
-            labels = torch.tensor(list(map(int, vehicle_ids)))
+            labels = torch.tensor([labels_mapping[x] for x in labels])
             self.length = sum(len(x) for x in self.tracks)
         else:
             self.tracks = [root + '/' + x
                            for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)
                            for x in reference[vehicle_id][camera_id]]
-            labels = torch.tensor([int(vehicle_id)
+            labels = torch.tensor([labels_mapping[int(vehicle_id)]
                                    for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)
                                    for _ in range(len(reference[vehicle_id][camera_id]))])
             self.length = len(self.tracks)
@@ -66,7 +70,12 @@ class AIC2020Track2(data.Dataset):
         image_name, labels = zip(*list(csv.reader(open(path)))[1:])
         self.image_name = [root + '/' + image_path
                            for image_path in image_name]
-        labels = torch.tensor(list(map(int, labels)))
+
+        labels = list(map(int, labels))
+        labels_set = set(labels)
+        labels_mapping = {k: i for i, k in enumerate(labels_set)}
+        labels = torch.tensor([labels_mapping[x] for x in labels])
+
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
