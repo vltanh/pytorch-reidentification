@@ -117,8 +117,8 @@ def re_ranking(probFea, galFea, k1, k2, lambda_value, local_distmat=None, only_l
 def reid_evaluate(emb_query, emb_gallery, lb_ids_query, lb_ids_gallery,
                   cmc_rank=1, top_k=100, k1=30, k2=3, l=0.1):
     # Calculate distance matrix between query images and gallery images
-    # dist_mtx = pdist_torch(emb_query, emb_gallery).cpu().numpy()
-    dist_mtx = re_ranking(emb_query, emb_gallery, k1, k2, l)
+    dist_mtx = pdist_torch(emb_query, emb_gallery).cpu().numpy()
+    # dist_mtx = re_ranking(emb_query, emb_gallery, k1, k2, l)
 
     n_q, n_g = dist_mtx.shape
     # sort "gallery index" in "distance" ascending order
@@ -165,7 +165,7 @@ def extract_embeddings(dataloader, model, device):
     return torch.cat(embeddings), np.concatenate(labels)
 
 
-def evaluate(gpus, weight_path,
+def evaluate(mode, gpus, weight_path,
              query_dir, query_label,
              gallery_dir, gallery_label,
              top_k, cmc_rank):
@@ -197,29 +197,30 @@ def evaluate(gpus, weight_path,
     print('Extract gallery...')
     g_embs, g_labels = extract_embeddings(dataloader, net, device)
 
-    # import optuna
+    if mode == 'finetune':
+        import optuna
 
-    # def objective(trial):
-    #     k1 = trial.suggest_int('k1', 10, 60)
-    #     k2 = trial.suggest_int('k2', 1, 6)
-    #     l = trial.suggest_uniform('lambda', 0.1, 0.9)
+        def objective(trial):
+            k1 = trial.suggest_int('k1', 10, 60)
+            k2 = trial.suggest_int('k2', 1, 6)
+            l = trial.suggest_uniform('lambda', 0.1, 0.9)
 
-    #     mAP, _ = reid_evaluate(q_embs, g_embs, q_labels, g_labels,
-    #                            cmc_rank, top_k,
-    #                            k1, k2, l)
-    #     return -mAP
+            mAP, _ = reid_evaluate(q_embs, g_embs, q_labels, g_labels,
+                                   cmc_rank, top_k,
+                                   k1, k2, l)
+            return -mAP
 
-    # study = optuna.create_study()
-    # study.optimize(objective, n_trials=100)
+        study = optuna.create_study()
+        study.optimize(objective, n_trials=100)
 
-    # print(study.best_params)
-
-    print('Evaluate...')
-    cmc_rank = 1
-    top_k = 100
-    mAP, cmc = reid_evaluate(q_embs, g_embs, q_labels, g_labels,
-                             cmc_rank, top_k, 55, 6, 0.1)
-    print(f'mAP@{top_k}={mAP}, cmc@{cmc_rank}={cmc}')
+        print(study.best_params)
+    elif mode == 'eval':
+        print('Evaluate...')
+        cmc_rank = 1
+        top_k = 100
+        mAP, cmc = reid_evaluate(q_embs, g_embs, q_labels, g_labels,
+                                 cmc_rank, top_k, 55, 6, 0.1)
+        print(f'mAP@{top_k}={mAP}, cmc@{cmc_rank}={cmc}')
 
 
 if __name__ == "__main__":
@@ -232,10 +233,11 @@ if __name__ == "__main__":
     parser.add_argument('--gpus', default=None)
     parser.add_argument('--map_top', default=100)
     parser.add_argument('--cmc_top', default=1)
+    parser.add_argument('--mode', default='eval')
 
     args = parser.parse_args()
 
-    evaluate(args.gpus, args.weight,
+    evaluate(args.mode, args.gpus, args.weight,
              args.query, args.query_label,
              args.gallery, args.gallery_label,
              args.map_top, args.cmc_top)
