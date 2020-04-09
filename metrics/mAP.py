@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm
 
 from datasets.aic2020track2 import AIC2020Track2Hard
+from utils import getter
 
 
 def pdist_torch(emb1, emb2):
@@ -86,24 +87,17 @@ def extract_embeddings(dataloader, model, device):
 
 class MeanAP():
     def __init__(self, net, device,
-                 query_dir='data/AIC20_ReID/image_train',
-                 query_label_path='data/list/reid_query_hard.csv',
-                 gallery_dir='data/AIC20_ReID/image_train',
-                 gallery_label_path='data/list/reid_gallery_hard.csv',
+                 query, gallery,
                  batch_size=64, top_k=100):
         self.top_k = top_k
 
         self.net = net
         self.device = device
 
-        dataset = AIC2020Track2Hard(query_dir, query_label_path,
-                                    'data/list/train_image_metadata.json',
-                                    train=False)
+        dataset = getter.get_instance(query)
         self.query_dataloader = DataLoader(dataset, batch_size=batch_size)
 
-        dataset = AIC2020Track2Hard(gallery_dir, gallery_label_path,
-                                    'data/list/train_image_metadata.json',
-                                    train=False)
+        dataset = getter.get_instance(gallery)
         self.gallery_dataloader = DataLoader(dataset, batch_size=batch_size)
 
         self.reset()
@@ -118,13 +112,13 @@ class MeanAP():
         self.score = None
 
     def value(self):
-        g_embs, g_labels = extract_embeddings(self.gallery_dataloader,
-                                              self.net, self.device)
-        g_embs = g_embs.to(self.device)
-
         q_embs, q_labels = extract_embeddings(self.query_dataloader,
                                               self.net, self.device)
         q_embs = q_embs.to(self.device)
+
+        g_embs, g_labels = extract_embeddings(self.gallery_dataloader,
+                                              self.net, self.device)
+        g_embs = g_embs.to(self.device)
 
         mAP, _ = reid_evaluate(q_embs, g_embs,
                                q_labels, g_labels,
