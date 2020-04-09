@@ -103,27 +103,51 @@ def re_ranking(probFea, galFea, k1, k2, lambda_value, local_distmat=None, only_l
     return final_dist
 
 
-def create_submission(model_id, save_root,
-                      emb_query, names_query,
-                      emb_gallery, names_gallery,
-                      top_k=100):
+def ranking(emb_query, names_query,
+            emb_gallery, names_gallery,
+            top_k=100):
+    # Calculate distance
+    dist_mtx = pdist_torch(emb_query, emb_gallery).cpu().numpy()
+    # dist_mtx = re_ranking(emb_query, emb_gallery, 60, 6, 0.25)
 
-    save_dir = f'{save_root}/{model_id}/OrgTool'
-    submit_path = f'{save_root}/{model_id}/{model_id}-track2.txt'
-    os.makedirs(save_dir, exist_ok=True)
-
-    # dist_mtx = pdist_torch(emb_query, emb_gallery).cpu().numpy()
-    dist_mtx = re_ranking(emb_query, emb_gallery, 55, 6, 0.1)
+    # Rank by distance
     n_q, n_g = dist_mtx.shape
     indices = np.argsort(dist_mtx, axis=1)
 
+    reference_path = 'data/AIC20_ReID/test_track.txt'
+    reference = open(reference_path).readlines()
+    tracks = np.array([x.strip().split()
+                       for x in reference if len(x.strip()) != 0])
+    tracklet_ids = np.arange(len(tracks))
+    veh2tracklet_mapping = {v: i for i, x in enumerate(tracks) for v in x}
+
     submit = [[] for _ in range(n_q)]
     for qidx in tqdm(range(n_q)):
-        qimid = os.path.basename(names_query[qidx]).replace('.jpg', '')
+        # Re-rank
+        g_indices = indices[qidx, :]
+        match_distances = dist_mtx[qidx, g_indices]
+        match_ids = names_gallery[g_indices]
 
-        match_id = names_gallery[indices[qidx, :top_k]]
+        match_tracklet_ids = np.array([veh2tracklet_mapping[x]
+                                       for x in match_ids])
+        match_tracklet_distances = np.array([np.median(match_distances[np.where(match_tracklet_ids == tracklet_id)[0]])
+                                             for tracklet_id in tracklet_ids])
+        tracklet_indices = np.argsort(match_tracklet_distances)
+
+        match_ids = sum([x for x in tracks[tracklet_indices]], [])[:top_k]
+
+        ######################################################################
+        qimid = os.path.basename(names_query[qidx]).replace('.jpg', '')
         submit[int(qimid) - 1] = [os.path.basename(x).replace('.jpg', '')
-                                  for x in match_id]
+                                  for x in match_ids]
+
+    return submit
+
+
+def create_submission_file(model_id, save_root, submit):
+    save_dir = f'{save_root}/{model_id}/OrgTool'
+    submit_path = f'{save_root}/{model_id}/{model_id}-track2.txt'
+    os.makedirs(save_dir, exist_ok=True)
 
     for qimid, result in enumerate(submit):
         save_file = f'{save_dir}/{qimid + 1:06d}.txt'
@@ -189,10 +213,9 @@ def generate_submission(gpus, weight_path, save_dir,
     g_embs, g_ids = extract_embeddings(dataloader, net, device)
 
     print('Generate...')
-    create_submission(model_id, save_dir,
-                      q_embs, q_ids,
-                      g_embs, g_ids,
-                      top_k)
+    submission = ranking(q_embs, q_ids,
+                         g_embs, g_ids, top_k)
+    create_submission_file(model_id, save_dir, submission)
 
 
 if __name__ == "__main__":
