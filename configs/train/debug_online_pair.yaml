@@ -9,7 +9,7 @@ optimizer:
     args:
         lr: 0.001
 loss:
-    name: OnlineClassificationLoss
+    name: OnlineTripletLoss
     args:
         margin: 1.0
         pair_selector:

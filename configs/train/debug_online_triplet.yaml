@@ -10,7 +10,7 @@ optimizer:
         lr: 0.001
         weight_decay: 0.0001
 loss:
-    name: OnlineClassificationLoss
+    name: OnlineTripletLoss
     args:
         margin: 1.0
         selector:
