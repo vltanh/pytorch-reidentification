@@ -24,7 +24,6 @@ class AIC2020Track2Hard(data.Dataset):
                             for x in reference[vehicle_id][camera_id]]
                            for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)]
             labels = torch.tensor([labels_mapping[x] for x in labels])
-            self.length = sum(len(x) for x in self.tracks)
         else:
             self.tracks = [root + '/' + x
                            for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)
@@ -32,7 +31,6 @@ class AIC2020Track2Hard(data.Dataset):
             labels = torch.tensor([labels_mapping[int(vehicle_id)]
                                    for camera_id, vehicle_id in zip(camera_ids, vehicle_ids)
                                    for _ in range(len(reference[vehicle_id][camera_id]))])
-            self.length = len(self.tracks)
 
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
@@ -61,7 +59,7 @@ class AIC2020Track2Hard(data.Dataset):
         return self.transform(im), label
 
     def __len__(self):
-        return self.length
+        return len(self.tracks)
 
 
 class AIC2020Track2(data.Dataset):
