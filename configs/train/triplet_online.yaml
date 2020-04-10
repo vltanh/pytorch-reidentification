@@ -4,7 +4,6 @@ model:
     name: EfficientNetExtractor
     args:
         version: 0
-        nheads: 1
 optimizer:
     name: Adam
     args:

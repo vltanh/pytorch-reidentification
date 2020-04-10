@@ -15,7 +15,23 @@ loss:
     name: ContrastiveLoss
     args:
         margin: 1.0
-metric: []
+metric:
+    - name: MeanAP
+      args:
+          query:
+              name: AIC2020Track2Hard
+              args:
+                  root: data/AIC20_ReID/image_train
+                  csv_path: data/list/reid_query_hard.csv
+                  json_path: data/list/train_image_metadata.json
+                  train: True
+          gallery:
+              name: AIC2020Track2Hard
+              args:
+                  root: data/AIC20_ReID/image_train
+                  csv_path: data/list/reid_query_hard.csv
+                  json_path: data/list/train_image_metadata.json
+                  train: False
 scheduler:
     name: StepLR
     args:
