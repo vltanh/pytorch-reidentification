@@ -4,10 +4,11 @@ model:
     name: EfficientNetExtractor
     args:
         version: 0
+        nheads: 1
 optimizer:
     name: Adam
     args:
-        lr: 0.0005
+        lr: 0.001
         weight_decay: 0.0001
 loss:
     name: OnlineTripletLoss
@@ -21,17 +22,19 @@ metric:
     - name: MeanAP
       args:
           query:
-              name: AIC2020Track2
+              name: AIC2020Track2Hard
               args:
                   root: data/AIC20_ReID/image_train
-                  path: data/list/reid_direction/reid_query_front_easy.csv
+                  csv_path: data/list/reid_query_hard.csv
+                  json_path: data/list/train_image_metadata.json
                   train: True
           gallery:
-              name: AIC2020Track2
+              name: AIC2020Track2Hard
               args:
                   root: data/AIC20_ReID/image_train
-                  path: data/list/reid_direction/reid_gallery_front_easy.csv
-                  train: True
+                  csv_path: data/list/reid_query_hard.csv
+                  json_path: data/list/train_image_metadata.json
+                  train: False
 scheduler:
     name: StepLR
     args:
@@ -43,25 +46,26 @@ dataset:
         name: AIC2020Track2
         args:
             root: data/AIC20_ReID/image_train
-            path: data/list/reid_direction/reid_train_front_easy.csv
+            path: data/list/reid_train_easy.csv
             train: True
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 4
-                nsamples: 4
+                nclasses: 3
+                nsamples: 2
                 pin_memory: True
     val:
-        name: AIC2020Track2
+        name: AIC2020Track2Hard
         args:
             root: data/AIC20_ReID/image_train
-            path: data/list/reid_direction/reid_gallery_front_easy.csv
-            train: True
+            csv_path: data/list/reid_query_hard.csv
+            json_path: data/list/train_image_metadata.json
+            train: False
         loader:
             name: BalancedBatchDataLoader
             args:
-                nclasses: 4
-                nsamples: 4
+                nclasses: 3
+                nsamples: 2
                 pin_memory: True
 trainer:
     nepochs: 10

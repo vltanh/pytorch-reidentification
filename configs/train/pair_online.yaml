@@ -1,4 +1,4 @@
-id: OnlineTriplet_Hardest
+id: OnlinePair
 pretrained: null
 model:
     name: EfficientNetExtractor
@@ -8,17 +8,29 @@ optimizer:
     name: Adam
     args:
         lr: 0.001
-        weight_decay: 0.0001
 loss:
     name: OnlineTripletLoss
     args:
         margin: 1.0
-        selector:
-            name: HardestNegativeTripletSelector
-            args:
-                margin: 1.0
+        pair_selector:
+            name: HardNegativePairSelector
 metric:
     - name: MeanAP
+      args:
+          query:
+              name: AIC2020Track2Hard
+              args:
+                  root: data/AIC20_ReID/image_train
+                  csv_path: data/list/reid_query_hard.csv
+                  json_path: data/list/train_image_metadata.json
+                  train: True
+          gallery:
+              name: AIC2020Track2Hard
+              args:
+                  root: data/AIC20_ReID/image_train
+                  csv_path: data/list/reid_query_hard.csv
+                  json_path: data/list/train_image_metadata.json
+                  train: False
 scheduler:
     name: StepLR
     args:
@@ -54,4 +66,4 @@ dataset:
 trainer:
     nepochs: 10
     val_step: 1
-    log_step: 5
+    log_step: 1
