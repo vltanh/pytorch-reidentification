@@ -41,7 +41,7 @@ and access using the announced port (default is 6006, e.g ```http://localhost:60
 
 #### Pretrained models
 
-The ```.pth``` files contains a dictionary:
+The ```.pth``` file contains a dictionary:
 
 ```
   {
@@ -61,3 +61,7 @@ This repository heavily borrows the code from https://github.com/adambielski/sia
 - All/Random/Hard negative mining of Pairs/Triplets
 
 Mean Average Precision (mAP) is borrowed and modified from https://github.com/CoinCheung/triplet-reid-pytorch.
+
+Re-ranking is taken from https://github.com/zhunzhong07/person-re-ranking.
+
+Visualization is taken from AIC Challenge 2020 (https://www.aicitychallenge.org/).
