@@ -48,6 +48,6 @@ class BalancedBatchSampler(BatchSampler):
 
 class BalancedBatchDataLoader(DataLoader):
     def __init__(self, dataset, nclasses, nsamples, *args, **kwargs):
-        labels = dataset.train_labels if dataset.train else dataset.test_labels
+        labels = dataset.labels
         bsamp = BalancedBatchSampler(labels, nclasses, nsamples)
         super().__init__(dataset, batch_sampler=bsamp, *args, **kwargs)

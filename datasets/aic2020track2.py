@@ -40,12 +40,8 @@ class AIC2020Track2Hard(data.Dataset):
                                  std=[0.229, 0.224, 0.225])
         ])
 
-        if self.train:
-            self.train_labels = labels
-            self.train_data = self.tracks
-        else:
-            self.test_labels = labels
-            self.test_data = self.tracks
+        self.labels = labels
+        self.data = self.tracks
 
     def __getitem__(self, index):
         if self.train:
@@ -53,10 +49,7 @@ class AIC2020Track2Hard(data.Dataset):
         else:
             image_path = self.tracks[index]
         im = Image.open(image_path)
-        if self.train:
-            label = self.train_labels[index]
-        else:
-            label = self.test_labels[index]
+        label = self.labels[index]
         return self.transform(im), label
 
     def __len__(self):
@@ -83,20 +76,13 @@ class AIC2020Track2(data.Dataset):
                                  std=[0.229, 0.224, 0.225])
         ])
 
-        if self.train:
-            self.train_labels = labels
-            self.train_data = self.image_name
-        else:
-            self.test_labels = labels
-            self.test_data = self.image_name
+        self.labels = labels
+        self.data = self.image_name
 
     def __getitem__(self, index):
         image_path = self.image_name[index]
         im = Image.open(image_path)
-        if self.train:
-            label = self.train_labels[index]
-        else:
-            label = self.test_labels[index]
+        label = self.labels[index]
         return self.transform(im), label
 
     def __len__(self):

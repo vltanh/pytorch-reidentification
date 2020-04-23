@@ -12,41 +12,34 @@ class SiameseDataset(Dataset):
         self.train = self.dataset.train
         self.transform = self.dataset.transform
 
-        if self.train:
-            self.train_labels = self.dataset.train_labels
-            self.train_data = self.dataset
-            self.labels_set = set(self.train_labels.numpy())
-            self.label_to_indices = {label: np.where(self.train_labels.numpy() == label)[0]
-                                     for label in self.labels_set}
-        else:
-            # generate fixed pairs for testing
-            self.test_labels = self.dataset.test_labels
-            self.test_data = self.dataset
-            self.labels_set = set(self.test_labels.numpy())
-            self.label_to_indices = {label: np.where(self.test_labels.numpy() == label)[0]
-                                     for label in self.labels_set}
+        self.labels = self.dataset.labels
+        self.data = self.dataset
+        self.labels_set = set(self.labels.numpy())
+        self.label_to_indices = {label: np.where(self.labels.numpy() == label)[0]
+                                 for label in self.labels_set}
 
+        if not self.train:
             positive_pairs = [[i,
                                np.random.choice(
-                                   self.label_to_indices[self.test_labels[i].item()]),
+                                   self.label_to_indices[self.labels[i].item()]),
                                1]
-                              for i in range(0, len(self.test_data), 2)]
+                              for i in range(0, len(self.data), 2)]
 
             negative_pairs = [[i,
                                np.random.choice(self.label_to_indices[
                                    np.random.choice(
                                        list(
-                                           self.labels_set - set([self.test_labels[i].item()]))
+                                           self.labels_set - set([self.labels[i].item()]))
                                    )
                                ]),
                                0]
-                              for i in range(1, len(self.test_data), 2)]
-            self.test_pairs = positive_pairs + negative_pairs
+                              for i in range(1, len(self.data), 2)]
+            self.pairs = positive_pairs + negative_pairs
 
     def __getitem__(self, index):
         if self.train:
             target = np.random.randint(0, 2)
-            img1, label1 = self.train_data[index]
+            img1, label1 = self.data[index]
             label1 = label1.item()
             if target == 1:
                 siamese_index = index
@@ -58,11 +51,11 @@ class SiameseDataset(Dataset):
                     list(self.labels_set - set([label1])))
                 siamese_index = np.random.choice(
                     self.label_to_indices[siamese_label])
-            img2, _ = self.train_data[siamese_index]
+            img2, _ = self.data[siamese_index]
         else:
-            img1, _ = self.test_data[self.test_pairs[index][0]]
-            img2, _ = self.test_data[self.test_pairs[index][1]]
-            target = self.test_pairs[index][2]
+            img1, _ = self.data[self.pairs[index][0]]
+            img2, _ = self.data[self.pairs[index][1]]
+            target = self.pairs[index][2]
 
         return (img1, img2), target
 
